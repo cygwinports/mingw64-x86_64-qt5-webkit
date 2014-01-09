@@ -1,0 +1,11 @@
+--- origsrc/qtwebkit-opensource-src-5.2.0/Source/WTF/WTF.pri	2013-12-08 11:09:58.000000000 -0600
++++ src/qtwebkit-opensource-src-5.2.0/Source/WTF/WTF.pri	2014-01-05 23:49:08.223482200 -0600
+@@ -15,7 +15,7 @@ mac {
+     LIBS += -licucore
+ } else {
+     contains(QT_CONFIG,icu) {
+-        win32: LIBS += -licuin -licuuc -licudt
++        win32-msvc*: LIBS += -licuin -licuuc -licudt
+         else:android: LIBS += -licui18n -licuuc
+         else: LIBS += -licui18n -licuuc -licudata
+     }
