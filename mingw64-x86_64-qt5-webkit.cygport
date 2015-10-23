@@ -2,7 +2,7 @@ CROSS_HOST="x86_64-w64-mingw32"
 inherit cross qt5-qmake
 
 NAME="mingw64-x86_64-qt5-webkit"
-VERSION=5.4.2
+VERSION=5.5.1
 RELEASE=1
 CATEGORY="Devel"
 SUMMARY="Qt5 WebKit library for Win64 toolchain"
@@ -19,6 +19,7 @@ PATCH_URI="
 	fedora/qt5-qtwebkit-enable-pkgconfig-support-for-win32-target.patch
 	fedora/qt5-qtwebkit-workaround-build-breakage-after-svn-commit-136242.patch
 	fedora/qtwebkit-opensource-src-5.0.1-debuginfo.patch
+	fedora/qt5-qtwebkit-use-linux-shell.patch
 	5.4.2-qt4-unicode.patch
 "
 

@@ -1013,8 +1013,8 @@ fedora/webkit-commit-151422.patch (-R)
 +#    !android:!mac:!config_icu {
 +#       addReasonForSkippingBuild("ICU is required.")
 +#    }
-     production_build:blackberry|qnx {
-         addReasonForSkippingBuild("Build not supported on BB10/QNX yet.")
+     production_build:blackberry {
+         addReasonForSkippingBuild("Build not supported on BB10 yet.")
      }
 --- origsrc/qtwebkit-opensource-src-5.4.2/Tools/qmake/mkspecs/features/features.prf	2015-05-29 15:30:55.000000000 -0500
 +++ src/qtwebkit-opensource-src-5.4.2/Tools/qmake/mkspecs/features/features.prf	2015-07-13 16:55:10.638684700 -0500
