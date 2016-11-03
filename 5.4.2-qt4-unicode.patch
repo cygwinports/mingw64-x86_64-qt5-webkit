@@ -4,6 +4,8 @@ fedora/qt5-qtwebkit-dont-depend-on-icu.patch
 fedora/revert-qt4-unicode-removal.patch (-R)
 fedora/webkit-commit-151422.patch (-R)
 
+v2: rebased for 5.6.2 with additional fix required for MemoryBarrier
+
 --- origsrc/qtwebkit-opensource-src-5.4.2/Source/WTF/WTF.pro	2015-05-29 15:30:56.000000000 -0500
 +++ src/qtwebkit-opensource-src-5.4.2/Source/WTF/WTF.pro	2015-07-13 16:55:21.293537700 -0500
 @@ -170,6 +170,7 @@ HEADERS += \
@@ -14,6 +16,17 @@ fedora/webkit-commit-151422.patch (-R)
      unicode/ScriptCodesFromICU.h \
      unicode/Unicode.h \
      unicode/UnicodeMacrosFromICU.h \
+--- origsrc/qtwebkit-opensource-src-5.6.2/Source/WTF/wtf/Atomics.h	2016-09-09 08:35:32.000000000 -0500
++++ src/qtwebkit-opensource-src-5.6.2/Source/WTF/wtf/Atomics.h	2016-09-09 08:35:00.000000000 -0500
+@@ -68,6 +68,8 @@
+ #elif !COMPILER(GCC)
+ extern "C" void _ReadWriteBarrier(void);
+ #pragma intrinsic(_ReadWriteBarrier)
++#else
++#include <intrin.h>
+ #endif
+ #include <windows.h>
+ #elif OS(QNX)
 --- origsrc/qtwebkit-opensource-src-5.4.2/Source/WTF/wtf/Platform.h	2015-05-29 15:30:56.000000000 -0500
 +++ src/qtwebkit-opensource-src-5.4.2/Source/WTF/wtf/Platform.h	2015-07-13 16:55:10.606180600 -0500
 @@ -580,9 +580,13 @@
@@ -1003,27 +1016,12 @@ fedora/webkit-commit-151422.patch (-R)
  RenderText::RenderText(Node* node, PassRefPtr<StringImpl> str)
 --- origsrc/qtwebkit-opensource-src-5.4.2/Tools/qmake/mkspecs/features/configure.prf	2015-05-29 15:30:55.000000000 -0500
 +++ src/qtwebkit-opensource-src-5.4.2/Tools/qmake/mkspecs/features/configure.prf	2015-07-13 16:55:10.556174200 -0500
-@@ -115,9 +115,9 @@ defineTest(finalizeConfigure) {
+@@ -115,7 +115,7 @@ defineTest(finalizeConfigure) {
      }
  
      # Sanity checks that would prevent us from building the whole project altogether.
--    !android:!mac:!config_icu {
--       addReasonForSkippingBuild("ICU is required.")
--    }
-+#    !android:!mac:!config_icu {
-+#       addReasonForSkippingBuild("ICU is required.")
-+#    }
-     production_build:blackberry {
-         addReasonForSkippingBuild("Build not supported on BB10 yet.")
+-    !config_icu:!osx:!use?(wchar_unicode) {
++    !config_icu:!mingw:!osx:!use?(wchar_unicode) {
+        addReasonForSkippingBuild("ICU is required.")
      }
---- origsrc/qtwebkit-opensource-src-5.4.2/Tools/qmake/mkspecs/features/features.prf	2015-05-29 15:30:55.000000000 -0500
-+++ src/qtwebkit-opensource-src-5.4.2/Tools/qmake/mkspecs/features/features.prf	2015-07-13 16:55:10.638684700 -0500
-@@ -142,7 +142,7 @@ defineTest(detectFeatures) {
-     # IndexedDB requires leveldb
-     enable?(indexed_database): WEBKIT_CONFIG += use_leveldb
- 
--    !config_icu:!mac: WEBKIT_CONFIG += use_wchar_unicode
-+#    !config_icu:!mac: WEBKIT_CONFIG += use_wchar_unicode
- 
-     export(WEBKIT_CONFIG)
-     export(CONFIGURE_WARNINGS)
+     production_build:blackberry {
