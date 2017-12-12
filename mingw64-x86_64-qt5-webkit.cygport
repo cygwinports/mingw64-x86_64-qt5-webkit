@@ -2,8 +2,8 @@ CROSS_HOST="x86_64-w64-mingw32"
 inherit cross qt5-qmake
 
 NAME="mingw64-x86_64-qt5-webkit"
-VERSION=5.6.2
-RELEASE=2
+VERSION=5.9.3
+RELEASE=0.1.20171108git
 CATEGORY="Devel"
 SUMMARY="Qt5 WebKit library for Win64 toolchain"
 DESCRIPTION="Qt is a cross-platform application framework for desktop and
@@ -12,17 +12,34 @@ applications once and deploy them to Windows, Mac OS X and Linux without
 rewriting the source code. Companies using Qt can leverage software
 investments made on one platform across many others."
 HOMEPAGE="https://www.qt.io/"
-SRC_URI="http://download.qt.io/snapshots/qt/${VERSION%.*}/${VERSION}/latest_src/submodules/qtwebkit-opensource-src-${VERSION}.tar.xz"
-SRC_DIR="qtwebkit-opensource-src-${VERSION}"
+commit=fdafce4d3a4670e315c161a9ec79ae6203742d1d
+SRC_URI="https://github.com/qt/qtwebkit/archive/${commit}/qtwebkit-${commit}.tar.gz"
+SRC_DIR="qtwebkit-${commit}"
 PATCH_URI="
 	fedora/qt5-qtwebkit-use-correct-icu-libs.patch
 	fedora/qt5-qtwebkit-enable-pkgconfig-support-for-win32-target.patch
+	fedora/qt5-qtwebkit-dont-depend-on-icu.patch
+	fedora/revert-qt4-unicode-removal.patch
 	fedora/qt5-qtwebkit-workaround-build-breakage-after-svn-commit-136242.patch
-	fedora/qtwebkit-opensource-src-5.0.1-debuginfo.patch
-	5.4.2-qt4-unicode.patch
+	fedora/qt5-qtwebkit-build.patch
 "
 
 # WebKit debuginfo is too large (objcopy bails due to insufficient memory)
 CFLAGS+=" -g0"
-CXXFLAGS+=" -g0"
+CXXFLAGS+=" -g0 -Wno-c++0x-compat -Wno-expansion-to-defined"
 RESTRICT="debuginfo"
+
+src_compile() {
+	# this triggers syncqt, which is necessary with a git snapshot
+	mkdir -p ${S}/.git
+	cd ${B}
+	cygqmake5 ${S}
+	cygmake
+}
+
+src_install() {
+	cd ${B}
+	qt5_qmake_install
+
+	sed -i -e '/^Libs\.private:/d' ${D}${CROSS_LIBDIR}/pkgconfig/Qt5WebKit*.pc
+}
